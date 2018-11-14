@@ -11,12 +11,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -51,12 +54,12 @@ public class SwapiResource
         return jsonStr;
     }
 
-    public String getSwapiData(String strurl)
+    public static String getSwapiDataAdv(int id)
     {
         String jsonStr = null;
         try
         {
-            URL url = new URL(strurl);
+            URL url = new URL("https://swapi.co/api/people/" + id);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("Accept", "application/json;charset=UTF-8");
@@ -113,28 +116,18 @@ public class SwapiResource
     @Path("async/amount/{amount}")
     public String getJsonAsync(@PathParam("amount") int amount) throws IOException, MalformedURLException
     {
-
-        //list of urls to fetch from
-        List<String> list = new ArrayList<>();
-
-        //there is a bug on swapi where there is no person on id 17 so we skip that
-        for (int i = 0; i < amount; i++)
-        {
-            if (i == 16) amount++;
-            else  list.add("https://swapi.co/api/people/" + (i + 1)); 
-        }
-
-        return list                             //return json
-                .stream()                       //makes a stream
-                .parallel()                     //makes stream parallel (async)
-                .map(this::getSwapiData)        //get json from the api
-                .filter(Objects::nonNull)       //remove nulls from stream
-                .collect(Collectors.toList())   //collect stream to list
-                .toString();                    //convert list to string
+        if(amount>=17) amount ++;                           //skip 17 because it doesnt work in the swapi api
+        
+        return IntStream                                    //makes a stream
+               .range(1, amount+1)                          //set range for how many we wann look for using amount from url (+1 because it doesnt include the last number)
+               .parallel()                                  //makes stream parallel (async)
+               .mapToObj(SwapiResource::getSwapiDataAdv)    //get json from the api from inserted id
+               .filter(Objects::nonNull)                    //remove nulls from stream
+               .collect(Collectors.toList())                //collect stream to list
+               .toString();                                 //convert list to string
 
     }
-    
-    
+
     @GET
     @Path("async")
     @Produces(MediaType.APPLICATION_JSON)

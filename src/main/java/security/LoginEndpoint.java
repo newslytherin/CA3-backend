@@ -10,6 +10,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import entity.Role;
 import entity.User;
 import entity.UserFacade;
 import java.util.Date;
@@ -25,6 +26,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import exceptions.AuthenticationException;
 import exceptions.GenericExceptionMapper;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 @Path("login")
 public class LoginEndpoint
@@ -47,11 +50,28 @@ public class LoginEndpoint
         {
             User user = UserFacade.getInstance().getVeryfiedUser(username, password);
             String token = createToken(username, user.getRolesAsStrings());
-            JsonObject responseJson = new JsonObject();
-            responseJson.addProperty("username", username);
-            responseJson.addProperty("token", token);
-            return Response.ok(new Gson().toJson(responseJson)).build();
 
+            //old JsonObject responseJson = new JsonObject();
+            
+            //old responseJson.addProperty("username", username);
+            //old responseJson.addProperty("token", token);
+            
+            //old return Response.ok(new Gson().toJson(responseJson)).build();
+            
+            JSONObject responseJson2 = new JSONObject();
+            JSONArray jsonRoleArray = new JSONArray();
+            
+            for(Role role :user.getRoleList()){
+                jsonRoleArray.add(role.getRoleName());
+            }
+
+            responseJson2.put("username", username);
+            responseJson2.put("token", token);
+            responseJson2.put("roles", jsonRoleArray);
+            
+            return Response.ok(new Gson().toJson(responseJson2)).build();
+            
+            
         } catch (Exception ex)
         {
             if (ex instanceof AuthenticationException)
