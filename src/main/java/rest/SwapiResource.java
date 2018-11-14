@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +53,7 @@ public class SwapiResource
 
     public String getSwapiData(String strurl)
     {
-        String jsonStr = "";
+        String jsonStr = null;
         try
         {
             URL url = new URL(strurl);
@@ -127,9 +128,19 @@ public class SwapiResource
                 .stream()                       //makes a stream
                 .parallel()                     //makes stream parallel (async)
                 .map(this::getSwapiData)        //get json from the api
+                .filter(Objects::nonNull)       //remove nulls from stream
                 .collect(Collectors.toList())   //collect stream to list
                 .toString();                    //convert list to string
 
+    }
+    
+    
+    @GET
+    @Path("async")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getJsonAsync() throws IOException, MalformedURLException
+    {
+        return getJsonAsync(86);                //there is no other way to get all from swapi than to use hardcoded 86
     }
 
 }
