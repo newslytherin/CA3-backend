@@ -13,21 +13,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
@@ -57,7 +50,7 @@ public class SwapiResource
         return jsonStr;
     }
 
-    public String getSwapiData2(String strurl)
+    public String getSwapiData(String strurl)
     {
         String jsonStr = "";
         try
@@ -120,22 +113,23 @@ public class SwapiResource
     public String getJsonAsync(@PathParam("amount") int amount) throws IOException, MalformedURLException
     {
 
+        //list of urls to fetch from
         List<String> list = new ArrayList<>();
 
+        //there is a bug on swapi where there is no person on id 17 so we skip that
         for (int i = 0; i < amount; i++)
         {
             if (i == 16) amount++;
-            else list.add("https://swapi.co/api/people/" + (i + 1));
-
+            else  list.add("https://swapi.co/api/people/" + (i + 1)); 
         }
-        
-        
-        list = list.stream()
-                .parallel()
-                .map(url -> getSwapiData2(url))
-                .collect(Collectors.toList());
 
-        return list.toString();
+        return list                             //return json
+                .stream()                       //makes a stream
+                .parallel()                     //makes stream parallel (async)
+                .map(this::getSwapiData)        //get json from the api
+                .collect(Collectors.toList())   //collect stream to list
+                .toString();                    //convert list to string
+
     }
 
 }
