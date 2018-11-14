@@ -17,6 +17,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -27,12 +28,10 @@ import javax.ws.rs.core.MediaType;
 @Path("people")
 public class PeopleResource
 {
-    
-    
-    
-    public String getPeopleData(int amount) throws MalformedURLException, IOException
+
+    public String fetchAPIfromInternet(String strUrl) throws MalformedURLException, IOException
     {
-        URL url = new URL("https://randomuser.me/api/?gender=female&nat=dk&results=" + amount);
+        URL url = new URL(strUrl);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json;charset=UTF-8");
@@ -46,10 +45,18 @@ public class PeopleResource
         scan.close();
         return jsonStr;
     }
+    
+    public String getPeopleData(int amount) throws IOException{
+        return fetchAPIfromInternet("https://randomuser.me/api/?seed=bobtheseed&gender=female&nat=dk&results=" + amount);
+    }
+    
+    public String getPeopleData(int amount, int page) throws IOException{
+        return fetchAPIfromInternet("https://randomuser.me/api/?seed=bobtheseed&gender=female&nat=dk&results=" + amount + "&page=" + page);
+    }
+    
 
     @Context
     private UriInfo context;
-
 
     public PeopleResource()
     {
@@ -60,5 +67,13 @@ public class PeopleResource
     public String getJson() throws IOException
     {
         return getPeopleData(420);
+    }
+    
+    @GET
+    @Path("page/{page}/amount/{amount}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getJson2(@PathParam("page") int page, @PathParam("amount") int amount) throws IOException
+    {
+        return getPeopleData(amount, page);
     }
 }
