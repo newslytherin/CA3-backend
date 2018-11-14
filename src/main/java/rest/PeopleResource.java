@@ -19,6 +19,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * REST Web Service
@@ -36,7 +37,6 @@ public class PeopleResource
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json;charset=UTF-8");
         con.setRequestProperty("User-Agent", "server");
-        con.setRequestProperty("x-total-count", "420");
         Scanner scan = new Scanner(con.getInputStream());
         String jsonStr = null;
         if (scan.hasNext())
@@ -65,16 +65,16 @@ public class PeopleResource
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getJson() throws IOException
+    public Response getJson() throws IOException
     {
-        return getPeopleData(420);
+        return Response.ok(getPeopleData(420)).header("x-total-count", 420).build();
     }
     
     @GET
     @Path("page/{page}/amount/{amount}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getJson2(@PathParam("page") int page, @PathParam("amount") int amount) throws IOException
+    public Response getJson2(@PathParam("page") int page, @PathParam("amount") int amount) throws IOException
     {
-        return getPeopleData(amount, page);
+        return Response.ok(getPeopleData(amount, page)).header("x-total-count", 420).build();
     }
 }
