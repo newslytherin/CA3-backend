@@ -35,15 +35,16 @@ public class PeopleResource
         URL url = new URL(strUrl);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
-        con.setRequestProperty("Accept", "application/json;charset=UTF-8");
+        con.setRequestProperty("Accept", "application/json;charset=utf-8");
         con.setRequestProperty("User-Agent", "server");
-        Scanner scan = new Scanner(con.getInputStream());
+        Scanner scan = new Scanner(con.getInputStream(), "UTF-8");
         String jsonStr = null;
         if (scan.hasNext())
         {
             jsonStr = scan.nextLine();
         }
         scan.close();
+        System.out.println(jsonStr);
         return jsonStr;
     }
     
