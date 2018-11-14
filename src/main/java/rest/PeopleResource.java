@@ -36,6 +36,7 @@ public class PeopleResource
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json;charset=UTF-8");
         con.setRequestProperty("User-Agent", "server");
+        con.setRequestProperty("x-total-count", "420");
         Scanner scan = new Scanner(con.getInputStream());
         String jsonStr = null;
         if (scan.hasNext())
